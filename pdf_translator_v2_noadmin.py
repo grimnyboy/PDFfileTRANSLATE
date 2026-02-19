@@ -231,13 +231,28 @@ class AutoCADPDFTranslator:
                                     new_fontsize = span["size"] * min(scale, 0.95)
                                     
                                     # Вмъкване с Arial шрифт
+                                    # Началната точка и ротацията зависят от ротацията на страницата
+                                    page_rotation = page.rotation
+                                    if page_rotation == 270:
+                                        insert_pt = (bbox[0], bbox[1])
+                                        insert_rotate = 270
+                                    elif page_rotation == 90:
+                                        insert_pt = (bbox[2], bbox[3])
+                                        insert_rotate = 90
+                                    elif page_rotation == 180:
+                                        insert_pt = (bbox[2], bbox[3] - 2)
+                                        insert_rotate = 180
+                                    else:  # 0 - нормална страница
+                                        insert_pt = (bbox[0], bbox[3] - 2)
+                                        insert_rotate = 0
                                     page.insert_text(
-                                        (bbox[0], bbox[3] - 2),
+                                        insert_pt,
                                         translated,
                                         fontsize=new_fontsize,
                                         color=(0, 0, 0),
                                         fontname="arial",
-                                        fontfile=self.font_path
+                                        fontfile=self.font_path,
+                                        rotate=insert_rotate
                                     )
             
             doc.save(output_path, garbage=4, deflate=True)
